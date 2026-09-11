@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running pre-commit checks..."
+
+# 1. Dar formato y corregir ESLint en los archivos staged
+npx lint-staged
+
+# 2. Correr pruebas unitarias con cobertura >= 80% y pruebas E2E (Integración)
+npm run test:precommit

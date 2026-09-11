@@ -1,0 +1,72 @@
+title: Transacciones API - Threat Model
+
+data_assets:
+  transaction-data:
+    id: transaction-data
+    description: Datos de transacciones (accountId, amount, currency, description)
+    usage: business
+    confidentiality: confidential
+    integrity: critical
+    availability: important
+
+  api-credentials:
+    id: api-credentials
+    description: API keys (API_KEY entrante, PROVIDER_API_KEY saliente)
+    usage: devops
+    confidentiality: strictly-confidential
+    integrity: critical
+    availability: critical
+
+technical_assets:
+  consumer-api:
+    id: consumer-api
+    description: Sistema consumidor externo
+    type: external-entity
+    usage: business
+    out_of_scope: true
+
+  transacciones-api:
+    id: transacciones-api
+    description: API NestJS (ApiKeyGuard, TransactionsController, TransactionService, ProviderService)
+    type: process
+    technology: web-service-rest
+    machine: virtual
+    encryption: none
+    authentication: token
+    authorization: none
+    communication_links:
+      to-db:
+        target: postgres-db
+        description: Lee/escribe transacciones via TypeORM
+        protocol: jdbc
+        authentication: credentials
+        data_assets_sent: [transaction-data]
+        data_assets_received: [transaction-data]
+      to-provider:
+        target: payment-provider
+        description: POST /provider/v1/execute
+        protocol: https
+        authentication: token
+        data_assets_sent: [transaction-data]
+        data_assets_received: [transaction-data]
+
+  postgres-db:
+    id: postgres-db
+    description: PostgreSQL - tabla transactions
+    type: datastore
+    technology: database
+    encryption: none
+
+  payment-provider:
+    id: payment-provider
+    description: Proveedor de pagos externo
+    type: external-entity
+    out_of_scope: true
+
+trust_boundaries:
+  api-boundary:
+    id: api-boundary
+    type: network-on-prem
+    technical_assets_inside:
+      - transacciones-api
+      - postgres-db

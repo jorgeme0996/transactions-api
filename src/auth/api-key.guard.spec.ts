@@ -12,7 +12,9 @@ describe('ApiKeyGuard', () => {
   let guard: ApiKeyGuard;
   let reflector: Reflector;
 
-  const buildContext = (headers: Record<string, string | string[]>): ExecutionContext =>
+  const buildContext = (
+    headers: Record<string, string | string[]>,
+  ): ExecutionContext =>
     ({
       getHandler: () => ({}),
       getClass: () => ({}),
@@ -21,7 +23,9 @@ describe('ApiKeyGuard', () => {
 
   beforeEach(() => {
     reflector = new Reflector();
-    const configService = { get: jest.fn().mockReturnValue(expectedKey) } as unknown as ConfigService;
+    const configService = {
+      get: jest.fn().mockReturnValue(expectedKey),
+    } as unknown as ConfigService;
     guard = new ApiKeyGuard(configService, reflector);
   });
 
@@ -32,23 +36,33 @@ describe('ApiKeyGuard', () => {
 
   it('allows requests with the correct x-api-key header', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
-    expect(guard.canActivate(buildContext({ 'x-api-key': expectedKey }))).toBe(true);
+    expect(guard.canActivate(buildContext({ 'x-api-key': expectedKey }))).toBe(
+      true,
+    );
   });
 
   it('rejects requests without an x-api-key header', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
-    expect(() => guard.canActivate(buildContext({}))).toThrow(UnauthorizedException);
+    expect(() => guard.canActivate(buildContext({}))).toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('rejects requests with a wrong key', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
-    expect(() => guard.canActivate(buildContext({ 'x-api-key': 'wrong' }))).toThrow(UnauthorizedException);
+    expect(() =>
+      guard.canActivate(buildContext({ 'x-api-key': 'wrong' })),
+    ).toThrow(UnauthorizedException);
   });
 
   it('rejects everything when API_KEY is not configured', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
-    const configService = { get: jest.fn().mockReturnValue(undefined) } as unknown as ConfigService;
+    const configService = {
+      get: jest.fn().mockReturnValue(undefined),
+    } as unknown as ConfigService;
     const unconfigured = new ApiKeyGuard(configService, reflector);
-    expect(() => unconfigured.canActivate(buildContext({ 'x-api-key': expectedKey }))).toThrow(UnauthorizedException);
+    expect(() =>
+      unconfigured.canActivate(buildContext({ 'x-api-key': expectedKey })),
+    ).toThrow(UnauthorizedException);
   });
 });
