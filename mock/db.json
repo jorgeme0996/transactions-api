@@ -1,0 +1,96 @@
+{
+  "accounts": [
+    {
+      "id": "acc-123456",
+      "balance": 16000,
+      "currency": "MXN"
+    },
+    {
+      "id": "acc-000001",
+      "balance": 50,
+      "currency": "MXN"
+    }
+  ],
+  "transactions": [
+    {
+      "transactionId": "txn-1789098987467",
+      "accountId": "acc-123456",
+      "type": "CREDIT",
+      "amount": 1500,
+      "currency": "MXN",
+      "status": "APPROVED",
+      "balance": 5500,
+      "executedAt": "2026-09-11T03:56:27.467Z"
+    },
+    {
+      "transactionId": "txn-1789100590226",
+      "accountId": "acc-123456",
+      "type": "CREDIT",
+      "amount": 1500,
+      "currency": "MXN",
+      "status": "APPROVED",
+      "balance": 7000,
+      "executedAt": "2026-09-11T04:23:10.226Z"
+    },
+    {
+      "transactionId": "txn-1789105287997",
+      "accountId": "acc-123456",
+      "type": "CREDIT",
+      "amount": 1500,
+      "currency": "MXN",
+      "status": "APPROVED",
+      "balance": 8500,
+      "executedAt": "2026-09-11T05:41:27.998Z"
+    },
+    {
+      "transactionId": "txn-1789105339163",
+      "accountId": "acc-123456",
+      "type": "CREDIT",
+      "amount": 1500,
+      "currency": "MXN",
+      "status": "APPROVED",
+      "balance": 10000,
+      "executedAt": "2026-09-11T05:42:19.164Z"
+    },
+    {
+      "transactionId": "txn-1789107688226",
+      "accountId": "acc-123456",
+      "type": "CREDIT",
+      "amount": 1500,
+      "currency": "MXN",
+      "status": "APPROVED",
+      "balance": 11500,
+      "executedAt": "2026-09-11T06:21:28.226Z"
+    },
+    {
+      "transactionId": "txn-1789108474604",
+      "accountId": "acc-123456",
+      "type": "CREDIT",
+      "amount": 1500,
+      "currency": "MXN",
+      "status": "APPROVED",
+      "balance": 13000,
+      "executedAt": "2026-09-11T06:34:34.604Z"
+    },
+    {
+      "transactionId": "txn-1789109294085",
+      "accountId": "acc-123456",
+      "type": "CREDIT",
+      "amount": 1500,
+      "currency": "MXN",
+      "status": "APPROVED",
+      "balance": 14500,
+      "executedAt": "2026-09-11T06:48:14.085Z"
+    },
+    {
+      "transactionId": "txn-1789109348638",
+      "accountId": "acc-123456",
+      "type": "CREDIT",
+      "amount": 1500,
+      "currency": "MXN",
+      "status": "APPROVED",
+      "balance": 16000,
+      "executedAt": "2026-09-11T06:49:08.638Z"
+    }
+  ]
+}
