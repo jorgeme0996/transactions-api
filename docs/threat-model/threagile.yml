@@ -1,10 +1,12 @@
-title: Transacciones API - Threat Model
+title: Transacciones API Threat Model
+business_criticality: critical # values: archive, operational, important, critical, mission-critical
 
 data_assets:
   transaction-data:
     id: transaction-data
     description: Datos de transacciones (accountId, amount, currency, description)
     usage: business
+    quantity: many # values: very-few, few, many, very-many
     confidentiality: confidential
     integrity: critical
     availability: important
@@ -13,33 +15,34 @@ data_assets:
     id: api-credentials
     description: API keys (API_KEY entrante, PROVIDER_API_KEY saliente)
     usage: devops
+    quantity: few # values: very-few, few, many, very-many
     confidentiality: strictly-confidential
     integrity: critical
     availability: critical
 
 technical_assets:
-  consumer-api:
-    id: consumer-api
-    description: Sistema consumidor externo
-    type: external-entity
-    usage: business
-    out_of_scope: true
-
   transacciones-api:
     id: transacciones-api
     description: API NestJS (ApiKeyGuard, TransactionsController, TransactionService, ProviderService)
     type: process
+    usage: business
+    size: application # values: system, service, application, component
     technology: web-service-rest
     machine: virtual
     encryption: none
     authentication: token
     authorization: none
+    confidentiality: confidential
+    integrity: critical
+    availability: critical
     communication_links:
       to-db:
         target: postgres-db
         description: Lee/escribe transacciones via TypeORM
         protocol: jdbc
         authentication: credentials
+        authorization: technical-user
+        usage: business
         data_assets_sent: [transaction-data]
         data_assets_received: [transaction-data]
       to-provider:
@@ -47,6 +50,8 @@ technical_assets:
         description: POST /provider/v1/execute
         protocol: https
         authentication: token
+        authorization: technical-user
+        usage: business
         data_assets_sent: [transaction-data]
         data_assets_received: [transaction-data]
 
@@ -54,14 +59,29 @@ technical_assets:
     id: postgres-db
     description: PostgreSQL - tabla transactions
     type: datastore
+    usage: business
+    size: service # values: system, service, application, component
     technology: database
+    machine: virtual
     encryption: none
+    confidentiality: confidential
+    integrity: critical
+    availability: important
 
   payment-provider:
     id: payment-provider
     description: Proveedor de pagos externo
     type: external-entity
+    usage: business
+    size: application # values: system, service, application, component
+    technology: web-service-rest
+    machine: virtual
+    encryption: none
+    confidentiality: confidential
+    integrity: important
+    availability: important
     out_of_scope: true
+    justification_out_of_scope: Proveedor de pagos externo, fuera del control del equipo
 
 trust_boundaries:
   api-boundary:

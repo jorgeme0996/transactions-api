@@ -41,12 +41,26 @@ Para desarrollo local, `yarn mock` levanta un proveedor de pagos simulado ([mock
 
 ## Modelado de amenazas (Threagile)
 
-El modelo de amenazas del sistema está definido en [docs/threat-model/threagile.yml](docs/threat-model/threagile.yml) y se ejecuta con [Threagile](https://threagile.io/) vía Docker.
+El modelo de amenazas del sistema está definido en [docs/threat-model/threagile.yml](docs/threat-model/threagile.yml) y se ejecuta con [Threagile](https://threagile.io/), instalado de forma nativa (no vía Docker: la imagen oficial solo publica `linux/amd64` y falla al emularse en Mac con Apple Silicon).
+
+Instalación (una sola vez, requiere Homebrew):
+
+```bash
+./scripts/setup-threagile.sh
+```
+
+El script instala Go y Graphviz si faltan, instala threagile vía `go install`, y compila localmente el plugin de cálculo RAA y aplica el fix necesario para macOS (ver comentarios en el script para el detalle de por qué es necesario). Deja todo en `~/.threagile` y `~/go/bin/threagile`; agrega a tu shell:
+
+```bash
+export PATH="$HOME/.threagile:$HOME/go/bin:$PATH"
+```
 
 Para generar el reporte:
 
 ```bash
-docker compose -f docker-compose.threagile.yml up
+mkdir -p docs/threat-model/report
+threagile -verbose -model docs/threat-model/threagile.yml -output docs/threat-model/report \
+  -raa-plugin "$HOME/.threagile/raa.so" -background "$HOME/.threagile/background.pdf"
 ```
 
 El reporte (PDF, diagramas de flujo de datos y riesgos identificados) se genera dentro de `docs/threat-model/report`.
