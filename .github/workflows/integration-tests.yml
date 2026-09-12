@@ -1,0 +1,62 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: transactions-db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci_user -d transactions-db"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      ENVIROMENT: test
+      API_KEY: test-api-key
+      PROVIDER_URL: http://localhost:3001
+      PROVIDER_API_KEY: mock-api-key
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: ci_user
+      DB_PASSWORD: ci_password
+      DB_NAME: transactions-db
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run database migrations
+        run: yarn migration:run
+
+      - name: Start mock provider server
+        run: |
+          node mock/server.js &
+          for i in $(seq 1 20); do
+            (echo > /dev/tcp/localhost/3001) >/dev/null 2>&1 && break
+            sleep 1
+          done
+
+      - name: Run e2e tests
+        run: yarn test:e2e
