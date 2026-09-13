@@ -15,12 +15,18 @@ import {
 } from './dto/transactions.dto';
 import { StatusType } from 'src/provider/dto/provider.dto';
 
+jest.mock('child_process', () => ({
+  exec: jest.fn(),
+}));
+import { exec } from 'child_process';
+
 describe('TransactionService', () => {
   let service: TransactionService;
   let providerService: { providerExecute: jest.Mock };
   let transactionRepository: {
     create: jest.Mock;
     find: jest.Mock<Promise<Transaction[]>, [FindManyOptions<Transaction>]>;
+    query: jest.Mock;
   };
 
   const baseRequest: TransactionRequestDTO = {
@@ -36,6 +42,7 @@ describe('TransactionService', () => {
     transactionRepository = {
       create: jest.fn(),
       find: jest.fn<Promise<Transaction[]>, [FindManyOptions<Transaction>]>(),
+      query: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -213,6 +220,51 @@ describe('TransactionService', () => {
         where: {},
         order: { createdAt: 'DESC' },
       });
+    });
+  });
+
+  describe('searchByAccount', () => {
+    it('should query the repository with the given accountId', async () => {
+      const transactions = [{ uuid: 'tx-1' }] as Transaction[];
+      transactionRepository.query.mockResolvedValue(transactions);
+
+      const result = await service.searchByAccount('acc-1');
+
+      expect(transactionRepository.query).toHaveBeenCalledWith(
+        expect.stringContaining('acc-1'),
+      );
+      expect(result).toBe(transactions);
+    });
+  });
+
+  describe('exportTransactions', () => {
+    it('should resolve with the command stdout on success', async () => {
+      (exec as unknown as jest.Mock).mockImplementation(
+        (_command: string, callback: (error: null, stdout: string) => void) =>
+          callback(null, 'ok'),
+      );
+
+      const result = await service.exportTransactions('out.csv');
+
+      expect(result).toBe('ok');
+    });
+
+    it('should reject when the command fails', async () => {
+      const error = new Error('boom');
+      (exec as unknown as jest.Mock).mockImplementation(
+        (_command: string, callback: (error: Error, stdout: string) => void) =>
+          callback(error, ''),
+      );
+
+      await expect(service.exportTransactions('out.csv')).rejects.toBe(error);
+    });
+  });
+
+  describe('buildMetadata', () => {
+    it('should merge parsed metadata into an empty object', () => {
+      const result = service.buildMetadata('{"key":"value"}');
+
+      expect(result).toEqual({ key: 'value' });
     });
   });
 });
