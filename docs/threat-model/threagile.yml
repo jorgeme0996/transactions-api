@@ -1,10 +1,12 @@
-title: Transacciones API - Threat Model
+title: Transacciones API Threat Model
+business_criticality: critical # values: archive, operational, important, critical, mission-critical
 
 data_assets:
   transaction-data:
     id: transaction-data
     description: Datos de transacciones (accountId, amount, currency, description)
     usage: business
+    quantity: many # values: very-few, few, many, very-many
     confidentiality: confidential
     integrity: critical
     availability: important
@@ -13,40 +15,79 @@ data_assets:
     id: api-credentials
     description: API keys (API_KEY entrante, PROVIDER_API_KEY saliente)
     usage: devops
+    quantity: few # values: very-few, few, many, very-many
     confidentiality: strictly-confidential
     integrity: critical
     availability: critical
 
 technical_assets:
-  consumer-api:
-    id: consumer-api
-    description: Sistema consumidor externo
+  api-consumer:
+    id: api-consumer
+    description: >
+      Sistema consumidor externo. Llama POST/GET /transactions con x-api-key,
+      y GET / y /healthcheck sin autenticacion (marcados @Public()).
     type: external-entity
     usage: business
+    size: application # values: system, service, application, component
+    technology: web-service-rest
+    machine: virtual
+    encryption: transparent
+    confidentiality: confidential
+    integrity: critical
+    availability: important
     out_of_scope: true
+    justification_out_of_scope: Sistema consumidor externo, fuera del control del equipo
+    communication_links:
+      to-transacciones-api:
+        target: transacciones-api
+        description: >
+          POST/GET /transactions (requiere x-api-key); GET / y /healthcheck son publicos
+          y no pasan por ApiKeyGuard (@Public()).
+        protocol: https
+        authentication: token
+        authorization: none
+        usage: business
+        data_assets_sent: [transaction-data, api-credentials]
+        data_assets_received: [transaction-data]
 
   transacciones-api:
     id: transacciones-api
-    description: API NestJS (ApiKeyGuard, TransactionsController, TransactionService, ProviderService)
+    description: >
+      API NestJS (ApiKeyGuard global via APP_GUARD, TransactionsController, TransactionService,
+      ProviderService). GET / y /healthcheck son publicos (@Public()), sin API_KEY. GET /transactions
+      no filtra por accountId ni pagina resultados: cualquier tenedor del API_KEY compartido puede
+      leer transacciones de todas las cuentas (consistente con authorization: none).
     type: process
+    usage: business
+    size: application # values: system, service, application, component
     technology: web-service-rest
     machine: virtual
     encryption: none
     authentication: token
     authorization: none
+    confidentiality: confidential
+    integrity: critical
+    availability: critical
     communication_links:
       to-db:
         target: postgres-db
         description: Lee/escribe transacciones via TypeORM
         protocol: jdbc
         authentication: credentials
+        authorization: technical-user
+        usage: business
         data_assets_sent: [transaction-data]
         data_assets_received: [transaction-data]
       to-provider:
         target: payment-provider
-        description: POST /provider/v1/execute
+        description: >
+          POST /provider/v1/execute. La respuesta (incluida la de error) se usa para
+          construir el registro persistido (status, balance, providerTransactionId) sin
+          validacion de esquema en runtime, solo tipado TypeScript.
         protocol: https
         authentication: token
+        authorization: technical-user
+        usage: business
         data_assets_sent: [transaction-data]
         data_assets_received: [transaction-data]
 
@@ -54,14 +95,29 @@ technical_assets:
     id: postgres-db
     description: PostgreSQL - tabla transactions
     type: datastore
+    usage: business
+    size: service # values: system, service, application, component
     technology: database
+    machine: virtual
     encryption: none
+    confidentiality: confidential
+    integrity: critical
+    availability: important
 
   payment-provider:
     id: payment-provider
     description: Proveedor de pagos externo
     type: external-entity
+    usage: business
+    size: application # values: system, service, application, component
+    technology: web-service-rest
+    machine: virtual
+    encryption: none
+    confidentiality: confidential
+    integrity: important
+    availability: important
     out_of_scope: true
+    justification_out_of_scope: Proveedor de pagos externo, fuera del control del equipo
 
 trust_boundaries:
   api-boundary:
