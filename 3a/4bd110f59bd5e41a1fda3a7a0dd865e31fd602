@@ -1,0 +1,35 @@
+package.json
+  s_e52cfff118c8a1::t_2b86fd68d5631d 39
+src/vuln-test/vuln-test.controller.ts
+  s_e52cfff118c8a1::t_b5e9f9c1278b8e 1-26
+src/app.module.ts
+  s_e52cfff118c8a1::t_8de5bfe5ac6bb7 27
+  s_e52cfff118c8a1::t_e99c0d42c92e7b 9
+  s_e52cfff118c8a1::t_8d948ec794f2d1 20,24,28
+src/vuln-test/vuln-test.service.spec.ts
+  s_e52cfff118c8a1::t_83717ac8b8308e 39
+  s_e52cfff118c8a1::t_b81259fc2cc698 1-38,40-82
+src/vuln-test/vuln-test.service.ts
+  s_e52cfff118c8a1::t_7b004f06f6c31b 1-40
+src/vuln-test/vuln-test.module.ts
+  s_e52cfff118c8a1::t_202fda8e5f0cf0 1-12
+src/vuln-test/vuln-test.controller.spec.ts
+  s_e52cfff118c8a1::t_142370d8663760 36
+  s_e52cfff118c8a1::t_91843aad756fc5 1-35,37-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "3a4bd110f59bd5e41a1fda3a7a0dd865e31fd602",
+  "prompts": {},
+  "sessions": {
+    "s_e52cfff118c8a1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8e36d1f0-536b-4edd-a956-fceb98009ddc",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "jorgeme0996 <jorgeme0996@gmail.com>"
+    }
+  }
+}
