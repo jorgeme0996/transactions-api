@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './config/typeorm.config';
 import { AuthModule } from './auth/auth.module';
+import { VulnTestModule } from './vuln-test/vuln-test.module';
 
 @Module({
   imports: [
@@ -16,14 +17,15 @@ import { AuthModule } from './auth/auth.module';
       useFactory: () => ({}),
       dataSourceFactory: async () => {
         if (!AppDataSource.isInitialized) {
-          await AppDataSource.initialize()
+          await AppDataSource.initialize();
         }
 
         return AppDataSource;
-      }
+      },
     }),
     AuthModule,
-    TransactionsModule
+    TransactionsModule,
+    VulnTestModule,
   ],
   controllers: [AppController],
   providers: [AppService],
