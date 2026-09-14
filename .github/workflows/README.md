@@ -57,6 +57,7 @@ Este directorio contiene los workflows de GitHub Actions del proyecto. A continu
 | [codeql.yml](./codeql.yml) | SAST | Push/PR → `main` + programado | En cada push/PR y semanalmente (lunes 6am UTC) |
 | [dependency-review.yml](./dependency-review.yml) | SCA | Pull Request → `main` | En cada PR |
 | [secret-scanning.yml](./secret-scanning.yml) | Secret Scanning | Push/PR → `main` | En cada push/PR |
+| [risk-assessment.yml](./risk-assessment.yml) | Risk Gate + AI review | `workflow_run` (tras CodeQL, Secret Scanning, Dependency Review) | Al terminar los tres workflows anteriores para el mismo commit |
 
 ---
 
@@ -96,3 +97,10 @@ Este directorio contiene los workflows de GitHub Actions del proyecto. A continu
 - **Qué hace:** Usa [Gitleaks](https://github.com/gitleaks/gitleaks) para escanear el historial de commits y el diff del PR en busca de secretos filtrados (API keys, tokens, credenciales de base de datos, etc.). Falla el job y publica un resumen en el PR si detecta algún hallazgo.
 - **Cuándo corre:** En cada Pull Request dirigido a `main` y en cada push a `main`.
 - **Nota:** complementa (no reemplaza) el **Secret Scanning / Push Protection** nativo de GitHub, que se puede habilitar desde **Settings → Code security** del repositorio y actúa incluso antes del push.
+
+## risk-assessment.yml
+
+- **Tipo:** Risk Gate + traducción a lenguaje humano
+- **Qué hace:** Espera a que CodeQL, Dependency Review y Secret Scanning terminen para el mismo commit (`wait-for-security-workflows.js`), corre `risk-engine` sobre sus salidas y publica el comentario **🔐 Security Risk Assessment** + un Check Run (`security-gate`, job `security-gate`). Ese comentario está pensado para alimentar la decisión PASS/WARN/BLOCK, no para lectura humana directa (usa severidades, IDs de regla, salida casi cruda).
+- Al terminar (y solo si hubo hallazgos: `has_findings == 'true'`), el job `notify-cubic` (independiente de `security-gate`, corre incluso en BLOCK) le hace una pregunta directa a `@cubic-dev-ai` -- no un `review this PR` completo, para no apilar una revisión nueva encima de la automática en cada push -- pidiéndole **un solo comentario** consolidado que traduzca hasta los 5 hallazgos más importantes a lenguaje humano (riesgo real + cambio de código concreto). Solo se mantiene viva una de estas preguntas por PR: la de un commit anterior se borra antes de publicar la del commit nuevo. La regla persistente que le enseña a cubic a responder así (un solo comentario, corto, priorizado) vive en [cubic.yaml](../../cubic.yaml) (`reviews.custom_rules`), y solo aplica una vez mergeada a `main` (cubic lee su config del branch default).
+- **Cuándo corre:** vía `workflow_run` al completarse CodeQL, Secret Scanning o Dependency Review; solo procede si los tres ya terminaron para el mismo `head_sha`.

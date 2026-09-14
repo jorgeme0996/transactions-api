@@ -54,6 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       decision: ${{ steps.report.outputs.decision }}
+      has_findings: ${{ steps.report.outputs.has_findings }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -164,3 +165,31 @@ jobs:
             echo "::error::Security Risk Assessment result is BLOCK"
             exit 1
           fi
+
+  notify-cubic:
+    # Runs independently of security-gate (not `needs: security-gate`) so it fires
+    # even on BLOCK -- developers get the plain-language translation immediately
+    # instead of after the block is resolved. Skipped entirely when the scan came
+    # back clean (has_findings == 'false') so a passing push doesn't get an extra
+    # "nothing to translate" comment.
+    needs: [gate, risk-assessment]
+    if: |
+      always() &&
+      needs.gate.outputs.proceed == 'true' &&
+      needs.risk-assessment.outputs.decision != '' &&
+      needs.risk-assessment.outputs.has_findings == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Ask cubic for a human-readable pass over the risk findings
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ needs.gate.outputs.pr_number }}
+          HEAD_SHA: ${{ needs.gate.outputs.head_sha }}
+          RISK_DECISION: ${{ needs.risk-assessment.outputs.decision }}
+        run: node .github/scripts/trigger-cubic-review.js
