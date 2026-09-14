@@ -77,8 +77,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gitleaks-results.sarif
+          path: gitleaks-artifact
           run-id: ${{ needs.gate.outputs.secret_scanning_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Normalize gitleaks SARIF path
+        # gitleaks-action@v2 uploads the SARIF with its full runner path preserved
+        # inside the artifact (e.g. work/<repo>/<repo>/results.sarif), not a file
+        # literally named gitleaks-results.sarif at the root, so locate it instead
+        # of assuming the path.
+        run: |
+          SARIF_FILE=$(find gitleaks-artifact -type f -name '*.sarif' | head -n1)
+          if [ -z "$SARIF_FILE" ]; then
+            echo "::error::No .sarif file found in the gitleaks-results.sarif artifact"
+            exit 1
+          fi
+          cp "$SARIF_FILE" gitleaks-results.sarif
 
       - name: Download SCA findings artifact
         uses: actions/download-artifact@v4
@@ -91,8 +105,13 @@ jobs:
         # analyze exits 1 on BLOCK by design (readme.md section 27); the actual gate
         # is the separate security-gate job below, driven by the `decision` output,
         # so this step must not fail the job before the PR comment/Check Run is posted.
-        continue-on-error: true
+        # A real input/configuration error also exits 1, but -- unlike BLOCK -- it
+        # throws before `--out` is written, so both command's exit codes are captured
+        # (instead of swallowed with `|| true`) and only tolerated once both expected
+        # output files are confirmed to exist; otherwise this step fails instead of
+        # letting risk-assessment-report.js crash trying to read missing inputs.
         run: |
+          set +e
           node risk-engine/dist/cli.js analyze \
             --sast codeql-alerts.json \
             --sca sca-findings.json \
@@ -101,6 +120,7 @@ jobs:
             --policy risk-engine/config/risk-policy.yml \
             --exceptions risk-engine/config/exceptions.yml \
             --format markdown --out risk-comment.md
+          MARKDOWN_EXIT=$?
           node risk-engine/dist/cli.js analyze \
             --sast codeql-alerts.json \
             --sca sca-findings.json \
@@ -109,6 +129,15 @@ jobs:
             --policy risk-engine/config/risk-policy.yml \
             --exceptions risk-engine/config/exceptions.yml \
             --format json --out risk-result.json
+          JSON_EXIT=$?
+          set -e
+
+          if [ ! -s risk-comment.md ] || [ ! -s risk-result.json ]; then
+            echo "::error::risk-engine analyze failed before writing its outputs (markdown exit=$MARKDOWN_EXIT, json exit=$JSON_EXIT) -- this is an input or configuration error, not a BLOCK decision"
+            exit 1
+          fi
+
+          echo "risk-engine analyze exit codes: markdown=$MARKDOWN_EXIT json=$JSON_EXIT (non-zero here is expected for a BLOCK decision, tolerated since both outputs were written)"
 
       - id: report
         name: Publish PR comment and Check Run
