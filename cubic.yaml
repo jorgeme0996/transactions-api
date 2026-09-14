@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://cubic.dev/schema/cubic-repository-config.schema.json
+
+version: 1
+
+reviews:
+  custom_rules:
+    - name: Explica el Security Risk Assessment en lenguaje humano
+      description: |
+        Este repo corre un pipeline de seguridad (CodeQL, dependency review, gitleaks)
+        cuyo resultado se agrega en un comentario del PR titulado
+        "🔐 Security Risk Assessment" (generado por risk-engine). Ese comentario está
+        pensado para alimentar una decisión automática (PASS/WARN/BLOCK), no para
+        que lo lea un developer: usa severidades, IDs de regla y salida casi cruda.
+
+        Cuando te etiqueten pidiendo que traduzcas ese reporte (o cuando ese
+        comentario exista y estés haciendo tu revisión), responde SIEMPRE con UN
+        SOLO comentario consolidado, no un hallazgo por comentario ni hilos nuevos
+        por cada ítem -- el objetivo es no saturar al developer con mensajes.
+        Dentro de ese único comentario:
+          - Máximo 5 hallazgos, los de mayor severidad primero (CRITICAL/HIGH antes
+            que MEDIUM/LOW/NOTE). Si hay más de 5, dilo en una línea al final
+            ("+N hallazgos menores, ver el reporte completo arriba") en vez de
+            listarlos todos.
+          - Por cada hallazgo: 1-2 frases en lenguaje simple sobre el riesgo real
+            (qué podría salir mal en producción), no el nombre de la regla, el CVE
+            o el ID crudo -- y un cambio de código concreto para resolverlo (nunca
+            una recomendación genérica tipo "actualizar la dependencia" o
+            "sanitizar el input").
+          - No dupliques hallazgos que ya hayas señalado en tus comentarios inline
+            del diff; concéntrate en los que vienen del reporte de seguridad y que
+            alguien sin contexto de seguridad no entendería con solo mirar el código.
