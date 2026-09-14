@@ -1,0 +1,21 @@
+.github/workflows/risk-assessment.yml
+  s_cb7dc237f80c6f::t_30d77bf2daa5c7 119,127
+  s_cb7dc237f80c6f::t_2c0b2e36d14294 107-109
+  s_cb7dc237f80c6f::t_ef074e0a2f2b81 79,83-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "04e21ef4a855fc16a029248c58b3a6be210595e7",
+  "prompts": {},
+  "sessions": {
+    "s_cb7dc237f80c6f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f765a768-71c7-4802-ad2d-d9c7e3be2c0a",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "jorgeme0996 <jorgeme0996@gmail.com>"
+    }
+  }
+}
