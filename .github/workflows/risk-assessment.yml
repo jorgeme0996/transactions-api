@@ -41,6 +41,7 @@ jobs:
       secret_scanning_run_id: ${{ steps.check.outputs.secret_scanning_run_id }}
       dependency_review_run_id: ${{ steps.check.outputs.dependency_review_run_id }}
     steps:
+      - uses: actions/checkout@v4
       - id: check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
