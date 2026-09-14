@@ -1,0 +1,166 @@
+risk-engine/tests/fixtures/contexts/internal-api.yml
+  s_08608a88ae9596::t_3bf49cfffe44c8 1-16
+risk-engine/src/engine/riskEngine.ts
+  s_08608a88ae9596::t_1945a5f028fb37 1-10,12-25,31-42,44-63
+  s_08608a88ae9596::t_b4370673c51d99 11
+  s_08608a88ae9596::t_711b0f7cb165cc 26-30
+  s_08608a88ae9596::t_63046adf633216 43
+.github/scripts/sca-epss-report.js
+  s_08608a88ae9596::t_96e8781f05b7ca 100-116,125
+  s_bc3b54daef4c5d::t_f149e76f1db912 1-99,117-124,126-157,159-185,197-199,201-226
+  s_08608a88ae9596::t_0d41cd58c6160b 158
+  s_08608a88ae9596::t_3c695e554853db 186-196,200
+risk-engine/src/context/AssetContext.ts
+  s_08608a88ae9596::t_a178c936df43f6 1-28
+risk-engine/tsconfig.json
+  s_08608a88ae9596::t_a6c37a99709eb7 1-17
+risk-engine/tests/unit/domain/owaspRiskMatrix.spec.ts
+  s_08608a88ae9596::t_63e91e2989053e 1-20
+risk-engine/tests/e2e-cli.spec.ts
+  s_08608a88ae9596::t_845a4d12764de2 1-69
+risk-engine/.gitignore
+  s_08608a88ae9596::t_45d539b9e3977d 1-3
+risk-engine/tests/fixtures/contexts/admin-api.yml
+  s_08608a88ae9596::t_73ea8e3cbc7626 1-16
+risk-engine/src/domain/policy/Policy.ts
+  s_08608a88ae9596::t_b4934db6e56dfa 1-26
+risk-engine/src/engine/cweRules.ts
+  s_08608a88ae9596::t_3752d20a78de1d 1-35,37-86,88-127
+  s_08608a88ae9596::t_2ec84871f554aa 36
+  s_08608a88ae9596::t_6cb36c044c5ead 87
+risk-engine/README.md
+  s_08608a88ae9596::t_8c07216d0ea13e 1-101
+risk-engine/package.json
+  s_08608a88ae9596::t_0d989a39437f52 23
+  s_08608a88ae9596::t_30686f9e7fa574 1-22,24-26
+risk-engine/src/parsers/sca/scaJsonParser.ts
+  s_08608a88ae9596::t_4a93cfc3ad0893 1-60
+risk-engine/tests/unit/parsers/scaJsonParser.spec.ts
+  s_08608a88ae9596::t_2619a7046b2ae4 1-35
+risk-engine/src/domain/impact/Impact.ts
+  s_08608a88ae9596::t_5ff4100ec64a9f 1-63
+risk-engine/src/parsers/common/sarif.ts
+  s_08608a88ae9596::t_8858f2ffdf9240 1-56
+risk-engine/src/domain/risk/RiskAssessment.ts
+  s_08608a88ae9596::t_30f14e5f381469 1-14
+risk-engine/tests/unit/domain/policy.spec.ts
+  s_08608a88ae9596::t_c50aa39228af9e 1-109
+risk-engine/tests/fixtures/low-risk-finding.json
+  s_08608a88ae9596::t_f447656b1427bb 1-11
+risk-engine/tests/unit/domain/likelihood.spec.ts
+  s_08608a88ae9596::t_74b0a2f9a904c8 1-54
+risk-engine/src/policy/evaluate.ts
+  s_08608a88ae9596::t_d75e3baac43ef0 1-77
+risk-engine/src/parsers/sast/codeqlAlertsParser.ts
+  s_08608a88ae9596::t_e4ba3a085ef241 1-24,26-70
+  s_08608a88ae9596::t_71afe0e649d33d 25
+risk-engine/tests/unit/domain/impact.spec.ts
+  s_08608a88ae9596::t_8c45c7ad4ca54e 1-46
+.github/scripts/fetch-codeql-alerts.js
+  s_08608a88ae9596::t_70533b7f7ad4c3 1-49
+risk-engine/config/risk-policy.yml
+  s_08608a88ae9596::t_45e104fc2d01cf 1-24
+risk-engine/src/policy/loadExceptions.ts
+  s_08608a88ae9596::t_10373965e1ed14 1-11
+risk-engine/src/domain/policy/Exception.ts
+  s_08608a88ae9596::t_59a44dd004f95f 1-45
+risk-engine/src/engine/deriveTechnicalImpact.ts
+  s_08608a88ae9596::t_5867f05e96203c 1-33
+risk-engine/src/engine/deriveThreatAgent.ts
+  s_08608a88ae9596::t_e98c6aa6a8c18d 1-39
+risk-engine/tests/fixtures/contexts/dev-tool.yml
+  s_08608a88ae9596::t_a951550f7bc28d 1-16
+.github/workflows/secret-scanning.yml
+  s_08608a88ae9596::t_2310ee63d4749b 26-29
+risk-engine/tests/fixtures/contexts/public-api.yml
+  s_08608a88ae9596::t_09a1d178745e8c 1-16
+risk-engine/src/output/markdown.ts
+  s_08608a88ae9596::t_5422423e3da1af 1-59
+.github/workflows/dependency-review.yml
+  s_08608a88ae9596::t_8934c240e8fc90 39-45
+  s_bc3b54daef4c5d::t_e5d61085d7aefa 23-38
+risk-engine/src/parsers/secrets/gitleaksSarifParser.ts
+  s_08608a88ae9596::t_d5f9669af33170 1-40
+risk-engine/src/domain/risk/owaspRiskMatrix.ts
+  s_08608a88ae9596::t_2fc471672a1ca7 1-20
+risk-engine/src/output/json.ts
+  s_08608a88ae9596::t_287b982417bb26 1-30
+risk-engine/tests/unit/parsers/codeqlAlertsParser.spec.ts
+  s_08608a88ae9596::t_fdf3996da709a6 1-35
+risk-engine/tests/unit/domain/findingValidation.spec.ts
+  s_08608a88ae9596::t_fbebcc4be03853 1-78
+risk-engine/tests/unit/context/context.spec.ts
+  s_08608a88ae9596::t_6ec2e0f1b5c631 1-56
+risk-engine/tests/integration/pipeline.spec.ts
+  s_08608a88ae9596::t_bd56869049bd6b 1-57
+risk-engine/config/likelihood-impact-rules.yml
+  s_08608a88ae9596::t_c9767021d48864 98-108
+  s_08608a88ae9596::t_a0be1400651434 1-97,109-112
+.github/scripts/wait-for-security-workflows.js
+  s_08608a88ae9596::t_52306bb183838d 1-50,52-105
+  s_08608a88ae9596::t_4ff23a899a1774 51
+risk-engine/src/domain/risk/contextualOverride.ts
+  s_08608a88ae9596::t_bc92cc7d3be58d 1-46
+risk-engine/src/domain/finding/Finding.ts
+  s_08608a88ae9596::t_c061ff13a074a8 1-145
+risk-engine/config/exceptions.yml
+  s_08608a88ae9596::t_5a360726d5708a 1-7
+risk-engine/src/context/loadApplicationContext.ts
+  s_08608a88ae9596::t_5620c17ccac8ac 1-65
+risk-engine/jest.config.js
+  s_08608a88ae9596::t_415bdfab78cc91 1-8
+risk-engine/config/application.yml
+  s_08608a88ae9596::t_321c618aa0347e 1-33
+risk-engine/tests/fixtures/codeql-alerts.json
+  s_08608a88ae9596::t_de43b6fdb6b105 1-44
+risk-engine/src/domain/likelihood/Likelihood.ts
+  s_08608a88ae9596::t_f591fcf841a1f0 1-62
+.github/workflows/risk-assessment.yml
+  s_08608a88ae9596::t_cc26a74f4e459b 90-93
+  s_08608a88ae9596::t_3ae8a3fb4e314b 1-89,94-126,134-136
+  s_08608a88ae9596::t_5024df58145d2e 127-133
+risk-engine/tests/fixtures/gitleaks-results.sarif
+  s_08608a88ae9596::t_85c2eeb41426c0 1-24
+risk-engine/src/output/cliTable.ts
+  s_08608a88ae9596::t_e17f8e93b855e8 1-37
+.github/scripts/risk-assessment-report.js
+  s_08608a88ae9596::t_7fe6f4f8392a25 1-107
+risk-engine/tests/unit/parsers/gitleaksSarifParser.spec.ts
+  s_08608a88ae9596::t_10538999e6f12a 1-29
+risk-engine/src/engine/deriveBusinessImpact.ts
+  s_08608a88ae9596::t_4b3a1c2aea85be 1-37
+risk-engine/src/policy/loadRiskPolicy.ts
+  s_08608a88ae9596::t_5386067a813b75 1-43
+risk-engine/tests/fixtures/sca-findings.json
+  s_08608a88ae9596::t_955d6aeae83671 1-11
+risk-engine/src/cli.ts
+  s_08608a88ae9596::t_5b9124a5973749 1-153
+risk-engine/tests/fixtures/contexts/payment-api.yml
+  s_08608a88ae9596::t_3346c2addac491 1-16
+risk-engine/src/output/checkRun.ts
+  s_08608a88ae9596::t_42437a40e3ec5f 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b62af8d724f942e626837f46b4c05a655d0c36b3",
+  "prompts": {},
+  "sessions": {
+    "s_08608a88ae9596": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1f5e81a7-7b6c-4b22-9b62-05144ea9ad1e",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "jorgeme0996 <jorgeme0996@gmail.com>"
+    },
+    "s_bc3b54daef4c5d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "37725cbf-986c-4c4a-a7ee-71b0d42df3c1",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "jorgeme0996 <jorgeme0996@gmail.com>"
+    }
+  }
+}
