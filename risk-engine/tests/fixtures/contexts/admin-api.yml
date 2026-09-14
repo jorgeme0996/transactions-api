@@ -1,0 +1,16 @@
+application:
+  name: admin-api
+  business_criticality: HIGH
+  environments:
+    production:
+      production: true
+      internet_exposed: false
+  authentication:
+    required: true
+  data_classification:
+    pii: true
+    financial: false
+    credentials: true
+  compliance:
+    pci_dss: false
+    soc2: true

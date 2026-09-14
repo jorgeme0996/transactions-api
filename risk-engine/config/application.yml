@@ -1,0 +1,33 @@
+# Application context for transacciones-api, used by the risk engine to turn raw
+# scanner severity into an organizational risk. Derived from docs/threat-model/threagile.yml
+# (business_criticality: critical; data assets transaction-data and api-credentials).
+#
+# NOTE on data_classification.pii: threagile.yml does not explicitly classify PII;
+# `true` here is a conservative default because transaction records include an
+# accountId tied to a real customer. Confirm with whoever owns compliance/PCI-DSS
+# scope for this service and adjust if it should be false.
+
+application:
+  name: transacciones-api
+
+  business_criticality: CRITICAL
+
+  environments:
+    production:
+      production: true
+      internet_exposed: true # api-consumer reaches this service over the public API (threagile.yml)
+
+  authentication:
+    required: true # ApiKeyGuard is applied globally via APP_GUARD, except @Public() routes
+
+  data_classification:
+    pii: true # accountId + transaction history -- conservative default, see note above
+    financial: true # transaction-data: amount, currency, accountId (threagile.yml)
+    credentials: true # api-credentials: API_KEY / provider API key (threagile.yml)
+
+  compliance:
+    pci_dss: true # processes financial transactions
+    soc2: false # no evidence of SOC2 scope in the repo; not assumed
+
+  existing_controls:
+    - 'ApiKeyGuard (shared API key, no per-tenant authorization)'

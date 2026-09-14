@@ -1,0 +1,136 @@
+name: Risk Assessment
+
+# Orchestrates the risk-engine on top of the existing, independent security
+# workflows (CodeQL, Secret Scanning, Dependency Review) instead of merging them
+# into one workflow with `needs`. `workflow_run` fires once per finished workflow;
+# `wait-for-security-workflows.js` checks whether all three have completed for this
+# head_sha and no-ops otherwise, so only the last one to finish actually proceeds.
+#
+# NOTE: workflow_run only triggers for a workflow file that already exists on the
+# default branch, so this file (and the artifact-producing changes to
+# secret-scanning.yml / dependency-review.yml) must be merged to main before it will
+# fire for any other branch or PR.
+on:
+  workflow_run:
+    workflows: ['CodeQL', 'Secret Scanning', 'Dependency Review']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      head_sha:
+        description: 'Commit SHA to evaluate (manual testing only)'
+        required: true
+
+concurrency:
+  group: risk-assessment-${{ github.event.workflow_run.head_sha || github.event.inputs.head_sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  security-events: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      proceed: ${{ steps.check.outputs.proceed }}
+      pr_number: ${{ steps.check.outputs.pr_number }}
+      head_sha: ${{ steps.check.outputs.head_sha }}
+      secret_scanning_run_id: ${{ steps.check.outputs.secret_scanning_run_id }}
+      dependency_review_run_id: ${{ steps.check.outputs.dependency_review_run_id }}
+    steps:
+      - id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MANUAL_HEAD_SHA: ${{ github.event.inputs.head_sha }}
+        run: node .github/scripts/wait-for-security-workflows.js
+
+  risk-assessment:
+    needs: gate
+    if: needs.gate.outputs.proceed == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      decision: ${{ steps.report.outputs.decision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.head_sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build risk-engine
+        working-directory: risk-engine
+        run: yarn install --frozen-lockfile && yarn build
+
+      - name: Fetch CodeQL alerts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ needs.gate.outputs.pr_number }}
+        run: node .github/scripts/fetch-codeql-alerts.js
+
+      - name: Download gitleaks SARIF artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: gitleaks-results.sarif
+          run-id: ${{ needs.gate.outputs.secret_scanning_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download SCA findings artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sca-findings.json
+          run-id: ${{ needs.gate.outputs.dependency_review_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run risk-engine analyze
+        # analyze exits 1 on BLOCK by design (readme.md section 27); the actual gate
+        # is the separate security-gate job below, driven by the `decision` output,
+        # so this step must not fail the job before the PR comment/Check Run is posted.
+        continue-on-error: true
+        run: |
+          node risk-engine/dist/cli.js analyze \
+            --sast codeql-alerts.json \
+            --sca sca-findings.json \
+            --secrets gitleaks-results.sarif \
+            --context risk-engine/config/application.yml \
+            --policy risk-engine/config/risk-policy.yml \
+            --exceptions risk-engine/config/exceptions.yml \
+            --format markdown --out risk-comment.md
+          node risk-engine/dist/cli.js analyze \
+            --sast codeql-alerts.json \
+            --sca sca-findings.json \
+            --secrets gitleaks-results.sarif \
+            --context risk-engine/config/application.yml \
+            --policy risk-engine/config/risk-policy.yml \
+            --exceptions risk-engine/config/exceptions.yml \
+            --format json --out risk-result.json
+
+      - id: report
+        name: Publish PR comment and Check Run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ needs.gate.outputs.pr_number }}
+          HEAD_SHA: ${{ needs.gate.outputs.head_sha }}
+        run: node .github/scripts/risk-assessment-report.js
+
+  security-gate:
+    needs: [gate, risk-assessment]
+    if: always() && needs.gate.outputs.proceed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce risk-based decision
+        run: |
+          DECISION="${{ needs.risk-assessment.outputs.decision }}"
+          echo "Risk assessment decision: ${DECISION:-<empty>}"
+          if [ -z "$DECISION" ]; then
+            echo "::error::risk-assessment job produced no decision (it likely failed before publishing a result)"
+            exit 1
+          fi
+          if [ "$DECISION" = "BLOCK" ]; then
+            echo "::error::Security Risk Assessment result is BLOCK"
+            exit 1
+          fi

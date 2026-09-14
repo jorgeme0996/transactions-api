@@ -1,0 +1,7 @@
+# Risk acceptance exceptions (readme.md section 14).
+#
+# Every entry requires finding_id, reason, approved_by and expires_at. An expired
+# exception is ignored automatically and the finding reverts to its computed risk.
+# A bare `ignore: true` without this information must never be added here or
+# supported by the engine -- see Exception.ts / validateException().
+exceptions: []

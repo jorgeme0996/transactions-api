@@ -1,0 +1,11 @@
+[
+  {
+    "id": "finding-low-risk-1",
+    "source": "SAST",
+    "scanner": "codeql",
+    "rule": { "id": "js/unused-variable", "cwe": ["CWE-1000"] },
+    "severity": { "scanner": "LOW", "cvss": null },
+    "location": { "repository": "dev-tool", "file": "scripts/tool.ts", "line": 5 },
+    "message": "Minor code quality finding, not present in the CWE rule table."
+  }
+]

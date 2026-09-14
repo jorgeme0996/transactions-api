@@ -1,0 +1,112 @@
+# Deterministic, auditable mapping from scanner output to OWASP Risk Rating factors.
+# readme.md section 21 explicitly forbids a single magic number (e.g. `score * 2`);
+# this table is the alternative: every factor traces back to a named rule below,
+# and cweRules.ts always falls back through cwe_rules -> severity_fallback -> UNKNOWN
+# so a finding never fails to be assessed, but an unmatched CWE is flagged as such
+# (rule_matched: false) in the explanation instead of guessing silently.
+#
+# All factors are 0-9 per the OWASP Risk Rating Methodology.
+
+impact_mode: max # max | average -- see Impact.ts for rationale
+
+cwe_rules:
+  CWE-89:
+    description: 'SQL Injection'
+    vulnerability: { discovery: 7, exploit: 9, awareness: 9, detection: 6 }
+    technical_impact: { confidentiality: 9, integrity: 8, availability: 5, accountability: 7 }
+  CWE-78:
+    description: 'OS Command Injection'
+    vulnerability: { discovery: 6, exploit: 8, awareness: 8, detection: 5 }
+    technical_impact: { confidentiality: 9, integrity: 9, availability: 8, accountability: 7 }
+  CWE-1321:
+    description: 'Prototype Pollution'
+    vulnerability: { discovery: 5, exploit: 6, awareness: 6, detection: 4 }
+    technical_impact: { confidentiality: 6, integrity: 8, availability: 6, accountability: 5 }
+  CWE-798:
+    description: 'Use of Hard-coded Credentials'
+    vulnerability: { discovery: 9, exploit: 9, awareness: 9, detection: 3 }
+    technical_impact: { confidentiality: 9, integrity: 7, availability: 4, accountability: 8 }
+  CWE-79:
+    description: 'Cross-Site Scripting'
+    vulnerability: { discovery: 7, exploit: 7, awareness: 8, detection: 6 }
+    technical_impact: { confidentiality: 6, integrity: 6, availability: 3, accountability: 5 }
+  CWE-1104:
+    description: 'Use of Unmaintained Third-Party Components'
+    vulnerability: { discovery: 6, exploit: 5, awareness: 6, detection: 5 }
+    technical_impact: { confidentiality: 6, integrity: 6, availability: 5, accountability: 4 }
+
+# Used when a finding's CWE is not present in cwe_rules above (e.g. an unfamiliar
+# advisory). Keyed by the scanner's own severity so the fallback is still informed
+# by the tool, without pretending to know exploitability details we don't have.
+severity_fallback:
+  CRITICAL:
+    vulnerability: { discovery: 8, exploit: 8, awareness: 8, detection: 6 }
+    technical_impact: { confidentiality: 8, integrity: 8, availability: 6, accountability: 6 }
+  HIGH:
+    vulnerability: { discovery: 7, exploit: 7, awareness: 7, detection: 5 }
+    technical_impact: { confidentiality: 7, integrity: 6, availability: 5, accountability: 5 }
+  MEDIUM:
+    vulnerability: { discovery: 5, exploit: 5, awareness: 5, detection: 5 }
+    technical_impact: { confidentiality: 5, integrity: 4, availability: 3, accountability: 4 }
+  LOW:
+    vulnerability: { discovery: 3, exploit: 3, awareness: 3, detection: 4 }
+    technical_impact: { confidentiality: 3, integrity: 2, availability: 2, accountability: 2 }
+  UNKNOWN:
+    vulnerability: { discovery: 4, exploit: 4, awareness: 4, detection: 4 }
+    technical_impact: { confidentiality: 4, integrity: 4, availability: 4, accountability: 4 }
+
+# Threat Agent Factors are derived from application context, not the scanner.
+threat_agent:
+  skill_by_source:
+    SAST: 6
+    SCA: 5
+    SECRET: 2 # using a leaked credential requires little skill
+  motive:
+    sensitive_data: 9
+    no_sensitive_data: 4
+  opportunity:
+    authentication_required: 4
+    authentication_not_required: 9
+  size:
+    internet_exposed_and_critical: 9
+    internet_exposed: 6
+    internal_only: 3
+
+# Business Impact Factors are derived entirely from application context.
+business_impact:
+  financial:
+    financial_data: 8
+    no_financial_data: 2
+  privacy:
+    pii: 8
+    no_pii: 2
+  compliance:
+    pci_dss: 8
+    soc2_only: 6
+    none: 2
+  reputation_by_criticality:
+    CRITICAL: 9
+    HIGH: 7
+    MEDIUM: 4
+    LOW: 2
+  business_continuity_by_criticality:
+    CRITICAL: 7
+    HIGH: 5
+    MEDIUM: 3
+    LOW: 1
+
+# Caps how bad a CWE's *technical* impact can realistically be on THIS asset. A SQLi's
+# textbook confidentiality/integrity impact assumes there is something worth stealing
+# or corrupting; a disposable, non-critical asset caps out lower even for the same CWE.
+# This is what makes readme.md section 3's example real (same CWE-89, different context
+# -> different final risk) instead of technical impact being a constant per CWE.
+technical_impact_ceiling_by_criticality:
+  CRITICAL: 9
+  HIGH: 7
+  MEDIUM: 5
+  LOW: 3
+
+contextual_override:
+  escalate_min_owasp_risk: HIGH
+  deescalate_max_owasp_risk: HIGH
+  deescalate_max_levels: 1

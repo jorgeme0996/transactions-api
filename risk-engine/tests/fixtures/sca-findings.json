@@ -1,0 +1,11 @@
+[
+  {
+    "package": "lodash@4.17.4",
+    "cve": "CVE-2019-10744",
+    "cvss": 9.1,
+    "epss": 0.72,
+    "cwe_ids": ["CWE-1321"],
+    "fixed_version": "4.17.12",
+    "url": "https://github.com/advisories/GHSA-jf85-cpcp-j695"
+  }
+]

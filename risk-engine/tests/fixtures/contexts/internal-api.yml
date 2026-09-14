@@ -1,0 +1,16 @@
+application:
+  name: internal-api
+  business_criticality: MEDIUM
+  environments:
+    production:
+      production: true
+      internet_exposed: false
+  authentication:
+    required: true
+  data_classification:
+    pii: false
+    financial: false
+    credentials: false
+  compliance:
+    pci_dss: false
+    soc2: false

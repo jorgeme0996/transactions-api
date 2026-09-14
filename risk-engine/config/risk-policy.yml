@@ -1,0 +1,24 @@
+# Risk-based decision policy (readme.md section 13).
+#
+# The spec shows two inconsistent shapes across its examples (`risk_policy:` vs
+# `policy:`, `WARN` vs `warning`). This file standardizes on root key `policy:`
+# with upper-case actions (BLOCK|WARN|ALLOW) -- a deliberate implementation choice,
+# not an oversight -- so config parsing can be strictly typed.
+
+policy:
+  critical:
+    action: BLOCK
+    approval_required: true
+  high:
+    action: BLOCK
+  medium:
+    action: WARN
+  low:
+    action: ALLOW
+  note:
+    action: ALLOW
+
+# Defensive fallback: the OWASP matrix can only ever emit NOTE/LOW/MEDIUM/HIGH/CRITICAL,
+# so this should never trigger -- but if it ever did, fail toward visibility (WARN)
+# rather than silently allowing an unclassified risk through.
+unmapped_action: WARN

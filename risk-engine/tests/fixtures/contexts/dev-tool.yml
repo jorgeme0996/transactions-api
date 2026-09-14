@@ -1,0 +1,16 @@
+application:
+  name: dev-tool
+  business_criticality: LOW
+  environments:
+    development:
+      production: false
+      internet_exposed: false
+  authentication:
+    required: false
+  data_classification:
+    pii: false
+    financial: false
+    credentials: false
+  compliance:
+    pci_dss: false
+    soc2: false

@@ -1,0 +1,16 @@
+application:
+  name: payment-api
+  business_criticality: CRITICAL
+  environments:
+    production:
+      production: true
+      internet_exposed: true
+  authentication:
+    required: true
+  data_classification:
+    pii: true
+    financial: true
+    credentials: true
+  compliance:
+    pci_dss: true
+    soc2: false

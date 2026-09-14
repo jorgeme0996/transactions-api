@@ -1,0 +1,44 @@
+[
+  {
+    "number": 1,
+    "state": "open",
+    "rule": {
+      "id": "js/sql-injection",
+      "description": "Database query built from user-controlled sources",
+      "security_severity_level": "high",
+      "tags": ["security", "external/cwe/cwe-089"]
+    },
+    "most_recent_instance": {
+      "location": { "path": "src/transactions/transactions.service.ts", "start_line": 42 },
+      "message": { "text": "This query string depends on a user-provided value." }
+    }
+  },
+  {
+    "number": 2,
+    "state": "open",
+    "rule": {
+      "id": "js/command-line-injection",
+      "description": "Unsanitized user input used to build a shell command",
+      "security_severity_level": "critical",
+      "tags": ["security", "external/cwe/cwe-078"]
+    },
+    "most_recent_instance": {
+      "location": { "path": "src/transactions/transactions.service.ts", "start_line": 88 },
+      "message": { "text": "This command line depends on a user-provided value." }
+    }
+  },
+  {
+    "number": 3,
+    "state": "open",
+    "rule": {
+      "id": "js/prototype-pollution",
+      "description": "Prototype-polluting assignment via lodash merge",
+      "security_severity_level": "medium",
+      "tags": ["security", "external/cwe/cwe-1321"]
+    },
+    "most_recent_instance": {
+      "location": { "path": "src/transactions/transactions.service.ts", "start_line": 110 },
+      "message": { "text": "This merge call may pollute the object prototype." }
+    }
+  }
+]

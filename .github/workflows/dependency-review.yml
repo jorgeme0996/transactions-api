@@ -20,3 +20,26 @@ jobs:
         with:
           fail-on-severity: high
           comment-summary-in-pr: always
+
+  sca-epss-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+
+      - name: Generar reporte SCA (CVSS + EPSS)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/sca-epss-report.js
+
+      - name: Upload SCA findings JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: sca-findings.json
+          path: sca-findings.json
+          retention-days: 14
