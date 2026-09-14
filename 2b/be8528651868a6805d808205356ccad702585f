@@ -1,0 +1,14 @@
+.github/workflows/risk-assessment.yml
+  s_cb7dc237f80c6f::t_30d77bf2daa5c7 120,128
+  s_08608a88ae9596::t_3ae8a3fb4e314b 1-79,81-83,97-104,112-119,121-127,129-144,152-154
+  s_08608a88ae9596::t_5024df58145d2e 145-151
+  s_08608a88ae9596::t_cc26a74f4e459b 105-107,111
+  s_cb7dc237f80c6f::t_ef074e0a2f2b81 80,84-95
+  s_cb7dc237f80c6f::t_2c0b2e36d14294 108-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2bbe8528651868a6805d808205356ccad702585f",
+  "prompts": {}
+}
