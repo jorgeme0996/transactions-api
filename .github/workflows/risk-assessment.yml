@@ -77,8 +77,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gitleaks-results.sarif
+          path: gitleaks-artifact
           run-id: ${{ needs.gate.outputs.secret_scanning_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Normalize gitleaks SARIF path
+        # gitleaks-action@v2 uploads the SARIF with its full runner path preserved
+        # inside the artifact (e.g. work/<repo>/<repo>/results.sarif), not a file
+        # literally named gitleaks-results.sarif at the root, so locate it instead
+        # of assuming the path.
+        run: |
+          SARIF_FILE=$(find gitleaks-artifact -type f -name '*.sarif' | head -n1)
+          if [ -z "$SARIF_FILE" ]; then
+            echo "::error::No .sarif file found in the gitleaks-results.sarif artifact"
+            exit 1
+          fi
+          cp "$SARIF_FILE" gitleaks-results.sarif
 
       - name: Download SCA findings artifact
         uses: actions/download-artifact@v4
@@ -91,6 +105,9 @@ jobs:
         # analyze exits 1 on BLOCK by design (readme.md section 27); the actual gate
         # is the separate security-gate job below, driven by the `decision` output,
         # so this step must not fail the job before the PR comment/Check Run is posted.
+        # `|| true` on each invocation keeps `bash -e` from stopping after the first
+        # (markdown) command's exit 1, which would otherwise skip the second (json)
+        # command and leave risk-result.json missing.
         continue-on-error: true
         run: |
           node risk-engine/dist/cli.js analyze \
@@ -100,7 +117,7 @@ jobs:
             --context risk-engine/config/application.yml \
             --policy risk-engine/config/risk-policy.yml \
             --exceptions risk-engine/config/exceptions.yml \
-            --format markdown --out risk-comment.md
+            --format markdown --out risk-comment.md || true
           node risk-engine/dist/cli.js analyze \
             --sast codeql-alerts.json \
             --sca sca-findings.json \
@@ -108,7 +125,7 @@ jobs:
             --context risk-engine/config/application.yml \
             --policy risk-engine/config/risk-policy.yml \
             --exceptions risk-engine/config/exceptions.yml \
-            --format json --out risk-result.json
+            --format json --out risk-result.json || true
 
       - id: report
         name: Publish PR comment and Check Run
