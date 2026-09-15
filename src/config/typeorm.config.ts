@@ -2,7 +2,7 @@ import { join } from 'path';
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 
-config(); // Carga las variables de entorno del archivo .env
+config({ override: true }); // Carga .env y prioriza sus valores sobre variables ya exportadas en el entorno
 
 // __dirname aquí es src/config (o dist/config), por eso subimos un nivel
 // para que el glob de entidades cubra todo src/ y no solo src/config/.
