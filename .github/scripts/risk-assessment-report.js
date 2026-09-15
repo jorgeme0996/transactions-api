@@ -98,7 +98,10 @@ async function main() {
   await upsertComment(owner, repo, prNumber, token, comment);
   await upsertCheckRun(owner, repo, headSha, token, checkRunPayload(result));
 
-  writeOutputs({ decision: result.final_decision });
+  const s = result.summary;
+  const totalFindings = s.CRITICAL + s.HIGH + s.MEDIUM + s.LOW + s.NOTE;
+
+  writeOutputs({ decision: result.final_decision, has_findings: totalFindings > 0 });
 }
 
 main().catch((err) => {
