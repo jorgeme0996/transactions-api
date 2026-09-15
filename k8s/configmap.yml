@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: transacciones-api-config
+  namespace: transacciones-api
+data:
+  ENVIROMENT: "production"
+  PORT: "3000"
+  PROVIDER_URL: "http://provider-service:3001"   # ajusta a tu URL real

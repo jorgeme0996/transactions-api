@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: transacciones-api-pdb
+  namespace: transacciones-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: transacciones-api

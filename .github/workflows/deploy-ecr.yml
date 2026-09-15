@@ -1,0 +1,47 @@
+name: Build & Push to ECR
+
+# Se dispara cada vez que se integra un cambio a main
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}   # permite lanzarlo tambien a mano desde la pestana Actions
+
+concurrency:
+  group: deploy-ecr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write   # NECESARIO para que OIDC funcione
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: transacciones-api
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE="$REGISTRY/$ECR_REPOSITORY"
+          docker build -t "$IMAGE:$IMAGE_TAG" -t "$IMAGE:latest" .
+          docker push "$IMAGE:$IMAGE_TAG"
+          docker push "$IMAGE:latest"
+          echo "Imagen subida: $IMAGE:$IMAGE_TAG"

@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: transacciones-api-migration
+  namespace: transacciones-api
+  labels:
+    app: transacciones-api
+spec:
+  backoffLimit: 3          # reintenta hasta 3 veces si falla
+  ttlSecondsAfterFinished: 300   # se autolimpia 5 min despues de terminar
+  template:
+    metadata:
+      labels:
+        app: transacciones-api
+        job: migration
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migration
+          image: 388839923332.dkr.ecr.us-east-1.amazonaws.com/transacciones-api:v1
+          command: ["yarn", "migration:run"]
+          envFrom:
+            - configMapRef:
+                name: transacciones-api-config
+            - secretRef:
+                name: transacciones-api-secret
