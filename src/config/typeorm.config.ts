@@ -17,5 +17,6 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'mi_base_datos',
   entities: [join(rootDir, '**', '*.entity{.ts,.js}')],
   migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   synchronize: false, // ¡IMPORTANTE! Manténlo en false si usas migraciones para evitar pérdida de datos
 });

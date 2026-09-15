@@ -27,7 +27,8 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: transacciones-api
-          image: 388839923332.dkr.ecr.us-east-1.amazonaws.com/transacciones-api:v1
+          image: 388839923332.dkr.ecr.us-east-1.amazonaws.com/transacciones-api:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           envFrom:

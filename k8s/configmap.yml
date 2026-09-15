@@ -7,3 +7,4 @@ data:
   ENVIROMENT: "production"
   PORT: "3000"
   PROVIDER_URL: "http://provider-service:3001"   # ajusta a tu URL real
+  DB_SSL: "true"
