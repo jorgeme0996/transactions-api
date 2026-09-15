@@ -1,17 +1,16 @@
 name: Build & Push to ECR
 
-# Se dispara cada vez que se integra un cambio a main
 on:
   push:
     branches: [main]
-  workflow_dispatch: {}   # permite lanzarlo tambien a mano desde la pestana Actions
+  workflow_dispatch: {}
 
 concurrency:
   group: deploy-ecr-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  id-token: write   # NECESARIO para que OIDC funcione
+  id-token: write
   contents: read
 
 env:
@@ -31,10 +30,11 @@ jobs:
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
           echo "$TOKEN" | cut -d '.' -f2 | tr '_-' '/+' \
             | python3 -c "import sys,base64,json; s=sys.stdin.read().strip(); s+='='*(-len(s)%4); print(json.dumps(json.loads(base64.b64decode(s)),indent=2))"
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::388839923332:role/github-actions-ecr-push
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
