@@ -126,3 +126,181 @@ trust_boundaries:
     technical_assets_inside:
       - transacciones-api
       - postgres-db
+
+# Triage humano de los riesgos generados por Threagile -- ver docs/threat-model/README.md
+# para el proceso completo y el formato de cada entrada. Todo lo que no sea
+# `mitigated`/`accepted`/`false-positive` sigue contando como abierto para el
+# Security Risk Gate (risk-engine/src/parsers/threat-model/threagileRisksParser.ts).
+risk_tracking:
+  sql-nosql-injection@transacciones-api@postgres-db@transacciones-api>to-db:
+    status: false-positive
+    justification: >
+      Todo acceso a postgres-db pasa por TypeORM Repository API (create/find con
+      FindOptionsWhere tipado, Between() sobre DTOs validados via class-validator);
+      no hay concatenacion de SQL ni createQueryBuilder con strings crudos en src/.
+      Las migraciones usan SQL estatico sin interpolar input de usuario.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  server-side-request-forgery@transacciones-api@payment-provider@transacciones-api>to-provider:
+    status: false-positive
+    justification: >
+      La URL de destino (PROVIDER_URL) sale de una variable de entorno fija
+      (ConfigService); ningun campo del TransactionRequestDTO del cliente llega a
+      formar el host/URL de la request saliente en ProviderService.providerExecute.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-technical-asset@api-consumer:
+    status: false-positive
+    justification: >
+      Ruido estructural de Threagile en modelos chicos (4 assets). api-consumer es
+      el cliente real del sistema, no un asset prescindible.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-technical-asset@payment-provider:
+    status: false-positive
+    justification: Proveedor de pagos externo real, indispensable para el flujo de negocio.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-technical-asset@postgres-db:
+    status: false-positive
+    justification: Base de datos real del sistema, persiste el historial de transacciones.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-technical-asset@transacciones-api:
+    status: false-positive
+    justification: Es el propio sistema modelado, no un asset prescindible.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-data-transfer@transaction-data@postgres-db@transacciones-api:
+    status: false-positive
+    justification: >
+      transaction-data fluye en ambos sentidos entre la API y la DB porque esa es
+      la funcion central del sistema (crear y consultar transacciones), no una
+      transferencia redundante.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-data-transfer@transaction-data@transacciones-api@api-consumer:
+    status: false-positive
+    justification: Mismo razonamiento -- GET/POST /transactions es el proposito del API.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-data-transfer@transaction-data@transacciones-api@payment-provider:
+    status: false-positive
+    justification: >
+      El monto/cuenta/tipo se envian al proveedor para ejecutar el cargo/abono real;
+      es el flujo de negocio, no una transferencia innecesaria.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-data-transfer@transaction-data@transacciones-api@postgres-db:
+    status: false-positive
+    justification: Persistir la transaccion creada es el proposito del endpoint POST.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unnecessary-data-transfer@api-credentials@transacciones-api@api-consumer:
+    status: accepted
+    justification: >
+      El header x-api-key viaja en cada request por diseno de autenticacion
+      (ApiKeyGuard); es inherente al mecanismo de auth actual, no eliminable sin
+      cambiar el esquema de autenticacion. Viaja sobre HTTPS (protocol: https en
+      el communication_link).
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unencrypted-asset@postgres-db:
+    status: accepted
+    justification: >
+      No se pudo confirmar desde el repo si el storage de RDS tiene encryption at
+      rest habilitado (no hay IaC de la infra en este repositorio). Se documenta
+      como gap conocido en docs/infra/Readme.md en vez de asumir un estado que no
+      se puede verificar. Revisar con quien administre RDS antes de dar esto por
+      cerrado definitivamente.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+    ticket: 'Verificar RDS storage encryption con el owner de infra'
+
+  unencrypted-asset@transacciones-api:
+    status: accepted
+    justification: >
+      Mismo caso que postgres-db: no hay IaC en el repo para confirmar cifrado del
+      volumen EBS de los nodos EKS. Documentado como gap conocido, no verificable
+      desde el codigo de este repositorio.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+    ticket: 'Verificar EBS encryption de los nodos EKS con el owner de infra'
+
+  missing-hardening@postgres-db:
+    status: accepted
+    justification: >
+      Hardening de RDS (subnet privada, security group, sin acceso publico) es
+      responsabilidad de infra y no se puede verificar ni corregir desde este
+      repositorio (sin IaC versionado). Gap conocido, documentado en
+      docs/infra/Readme.md.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  missing-hardening@transacciones-api:
+    status: accepted
+    justification: >
+      El Dockerfile corre como root (sin USER no-root) y k8s/deployment.yml no
+      tiene securityContext (runAsNonRoot/readOnlyRootFilesystem/drop capabilities).
+      Gap real, conocido, diferido por alcance del challenge -- documentado en
+      docs/infra/Readme.md hallazgo #10.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+    ticket: 'Agregar securityContext al Deployment y USER no-root al Dockerfile'
+
+  missing-vault@transacciones-api:
+    status: accepted
+    justification: >
+      DB_PASSWORD y las API keys viajan como k8s Secret (base64, no un vault real)
+      y .env en local; no hay integracion con AWS Secrets Manager / External
+      Secrets Operator. Gap conocido, diferido por alcance del challenge.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  unencrypted-communication@transacciones-api>to-db@transacciones-api@postgres-db:
+    status: accepted
+    justification: >
+      typeorm.config.ts hace SSL opcional via DB_SSL y usa
+      rejectUnauthorized:false incluso cuando esta habilitado (no valida el
+      certificado del servidor). Gap real y conocido, documentado en
+      docs/infra/Readme.md hallazgo #9.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+    ticket: 'Forzar SSL por defecto en no-local + rejectUnauthorized:true con CA de RDS'
+
+  missing-waf@transacciones-api:
+    status: accepted
+    justification: >
+      El ALB internet-facing en k8s/ingress.yml no tiene asociado un WAF ACL.
+      Gap conocido, diferido por alcance del challenge.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  missing-identity-propagation@api-consumer>to-transacciones-api@api-consumer@transacciones-api:
+    status: accepted
+    justification: >
+      Autenticacion via una unica API key compartida entre todos los consumidores,
+      sin scoping ni identidad por cliente. Aceptado para el alcance actual (un
+      consumidor de confianza); documentado en docs/infra/Readme.md hallazgo #7.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
+
+  dos-risky-access-across-trust-boundary@transacciones-api@api-consumer@api-consumer>to-transacciones-api:
+    status: accepted
+    justification: >
+      No hay rate limiting instalado (@nestjs/throttler no esta en package.json).
+      Gap conocido, diferido por alcance del challenge; documentado en
+      docs/infra/Readme.md hallazgo #8.
+    checked_by: jorge@goldmediatech.com
+    date: '2026-09-16'
