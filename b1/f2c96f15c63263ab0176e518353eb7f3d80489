@@ -1,0 +1,72 @@
+.github/workflows/README.md
+  s_6544e0c774fc20::t_4934ddd443aade 16-25
+  s_6544e0c774fc20::t_f75f1eeb99c97d 45-48,51
+  s_6544e0c774fc20::t_e61bacd43d5441 106-111,115,117-124
+  s_6544e0c774fc20::t_18adf3ef011d2a 63-65
+.github/workflows/threat-model.yml
+  s_6544e0c774fc20::t_574159a1cd003e 1-50
+.github/workflows/risk-assessment.yml
+  s_6544e0c774fc20::t_c30f0d066f7ca3 15
+  s_6544e0c774fc20::t_e10ba70bf5ebe4 43
+  s_6544e0c774fc20::t_7de824de5bc7db 128,138
+  s_6544e0c774fc20::t_03538b38020c57 4-7
+  s_6544e0c774fc20::t_831726ff5b7e3e 106-112
+.github/workflows/deploy-ecr.yml
+  s_6544e0c774fc20::t_b573f211254ed0 15
+  s_6544e0c774fc20::t_76662e763ccf49 38-62
+src/transactions/utils/transactions-validation.ts
+  s_6544e0c774fc20::t_a70495576c9edf 18,21-22
+risk-engine/config/likelihood-impact-rules.yml
+  s_6544e0c774fc20::t_7d7bde36689a81 10-23
+  s_6544e0c774fc20::t_970ea31cb849d0 77
+docs/threat-model/README.md
+  s_6544e0c774fc20::t_12e33da6d6c961 1-123
+src/transactions/transactions.service.spec.ts
+  s_6544e0c774fc20::t_8865d1725710a3 74,79,84,95-104,115-121
+  s_6544e0c774fc20::t_fefa10f03910d6 85-94,105-114
+risk-engine/src/cli.ts
+  s_6544e0c774fc20::t_2885bf69a125c3 146
+  s_6544e0c774fc20::t_8d10aa8a89266d 32
+  s_6544e0c774fc20::t_54c39f11a8b4e7 60-63,65-73
+  s_6544e0c774fc20::t_7fb4f61b73b69d 111
+  s_6544e0c774fc20::t_82363b78d871bb 15
+risk-engine/src/domain/finding/Finding.ts
+  s_6544e0c774fc20::t_cc5d36cda2cd4c 1
+  s_6544e0c774fc20::t_33bbea64be238b 56
+docs/infra/Readme.md
+  s_6544e0c774fc20::t_3392d4c4c1a7c2 85-87
+  s_6544e0c774fc20::t_84e4ca6bf418f2 76-84,88
+  s_6544e0c774fc20::t_49c44dda1b402d 58,61
+  s_6544e0c774fc20::t_2616e94cb091df 1-3,45-57,59-60,62-64,66-75,89-93
+  s_6544e0c774fc20::t_8d3d4cc61cd84f 65
+.github/scripts/wait-for-security-workflows.js
+  s_6544e0c774fc20::t_7fb9fe5e73c337 100
+  s_6544e0c774fc20::t_abd5c2324b985b 9-13
+risk-engine/src/parsers/threat-model/threagileRisksParser.ts
+  s_6544e0c774fc20::t_cd071c62ae3d00 1-83
+risk-engine/README.md
+  s_6544e0c774fc20::t_964ec5a01f0043 4-5
+  s_6544e0c774fc20::t_17d4725e75eb3c 18
+  s_6544e0c774fc20::t_4dfad610937bfb 69
+  s_6544e0c774fc20::t_0f265fc4fa4136 92-97
+risk-engine/tests/unit/parsers/threagileRisksParser.spec.ts
+  s_6544e0c774fc20::t_9ab0b86ef730c4 1-68
+docs/CONTRIBUTING.md
+  s_6544e0c774fc20::t_6564ce5dfe61a1 45-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b1f2c96f15c63263ab0176e518353eb7f3d80489",
+  "prompts": {},
+  "sessions": {
+    "s_6544e0c774fc20": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d3708a31-83df-4160-b41f-ee37b03912c3",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "jorgeme0996 <jorgeme0996@gmail.com>"
+    }
+  }
+}
