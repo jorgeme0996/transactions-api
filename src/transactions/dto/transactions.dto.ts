@@ -48,4 +48,8 @@ export class TransactionsQueryDTO {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

@@ -47,10 +47,16 @@ export class TransactionService {
 
 
   async getTransactions(query: TransactionsQueryDTO) {
-    const { currency, status, type, startDate, endDate } = query
+    const { currency, status, type, startDate, endDate, search } = query
 
     if ((startDate && !endDate) || (!startDate && endDate)) {
       throw new BadRequestException('startDate and endDate must be sent together')
+    }
+
+    if (search) {
+      return this.transactionRepository.query(
+        `SELECT * FROM transaction WHERE description LIKE '%${search}%'`
+      )
     }
 
     const where: FindOptionsWhere<Transaction> = {}
