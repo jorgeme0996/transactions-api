@@ -28,6 +28,11 @@ jobs:
         # and graphviz baked into the image, and we don't consume them here).
         run: |
           mkdir -p threagile-output
+          # threagile's image writes as a container-internal UID that doesn't match
+          # the runner's user, so it can't write into a bind-mounted dir created by
+          # `mkdir` above without this -- confirmed via a real run failing with
+          # "open /app/work/threagile-output/risks.json: permission denied".
+          chmod 777 threagile-output
           docker run --rm \
             -v "${{ github.workspace }}:/app/work" \
             threagile/threagile:0.9.1@sha256:abb9eccb111a2059c4876759a24245db02ad295b1608d3a4634ec250f38d9640 \
