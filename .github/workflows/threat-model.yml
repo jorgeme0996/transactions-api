@@ -1,0 +1,50 @@
+name: Threat Model
+
+# Must run on every PR (not gated by `paths:` on threagile.yml) -- risk-assessment.yml's
+# wait-for-security-workflows.js requires a completed run of every workflow in
+# REQUIRED_WORKFLOWS for a given head_sha before the gate proceeds. Restricting this to
+# only PRs that touch the model would leave `proceed` stuck at false for every other PR,
+# silently disabling the whole Security Risk Gate.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  threagile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Threagile
+        # Official image, linux/amd64 (matches ubuntu-latest natively -- see
+        # scripts/setup-threagile.sh for why this only needs a native build on
+        # Apple Silicon dev machines, not here). Flags verified against the
+        # binary's own -help output (risk-engine only needs risks.json; the
+        # rest -- PDF/excel/diagrams/stats -- would also need the RAA plugin
+        # and graphviz baked into the image, and we don't consume them here).
+        run: |
+          mkdir -p threagile-output
+          docker run --rm \
+            -v "${{ github.workspace }}:/app/work" \
+            threagile/threagile:0.9.1@sha256:abb9eccb111a2059c4876759a24245db02ad295b1608d3a4634ec250f38d9640 \
+            -model /app/work/docs/threat-model/threagile.yml \
+            -output /app/work/threagile-output \
+            -generate-report-pdf=false \
+            -generate-risks-excel=false \
+            -generate-tags-excel=false \
+            -generate-data-asset-diagram=false \
+            -generate-data-flow-diagram=false \
+            -generate-technical-assets-json=false \
+            -generate-stats-json=false \
+            -generate-risks-json=true
+
+      - name: Upload risks.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: threagile-risks.json
+          path: threagile-output/risks.json
+          retention-days: 14

@@ -1,10 +1,10 @@
 name: Risk Assessment
 
 # Orchestrates the risk-engine on top of the existing, independent security
-# workflows (CodeQL, Secret Scanning, Dependency Review) instead of merging them
-# into one workflow with `needs`. `workflow_run` fires once per finished workflow;
-# `wait-for-security-workflows.js` checks whether all three have completed for this
-# head_sha and no-ops otherwise, so only the last one to finish actually proceeds.
+# workflows (CodeQL, Secret Scanning, Dependency Review, Threat Model) instead of
+# merging them into one workflow with `needs`. `workflow_run` fires once per finished
+# workflow; `wait-for-security-workflows.js` checks whether all four have completed for
+# this head_sha and no-ops otherwise, so only the last one to finish actually proceeds.
 #
 # NOTE: workflow_run only triggers for a workflow file that already exists on the
 # default branch, so this file (and the artifact-producing changes to
@@ -12,7 +12,7 @@ name: Risk Assessment
 # fire for any other branch or PR.
 on:
   workflow_run:
-    workflows: ['CodeQL', 'Secret Scanning', 'Dependency Review']
+    workflows: ['CodeQL', 'Secret Scanning', 'Dependency Review', 'Threat Model']
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -40,6 +40,7 @@ jobs:
       head_sha: ${{ steps.check.outputs.head_sha }}
       secret_scanning_run_id: ${{ steps.check.outputs.secret_scanning_run_id }}
       dependency_review_run_id: ${{ steps.check.outputs.dependency_review_run_id }}
+      threat_model_run_id: ${{ steps.check.outputs.threat_model_run_id }}
     steps:
       - uses: actions/checkout@v4
       - id: check
@@ -102,6 +103,13 @@ jobs:
           run-id: ${{ needs.gate.outputs.dependency_review_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Download Threagile risks artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: threagile-risks.json
+          run-id: ${{ needs.gate.outputs.threat_model_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run risk-engine analyze
         # analyze exits 1 on BLOCK by design (readme.md section 27); the actual gate
         # is the separate security-gate job below, driven by the `decision` output,
@@ -117,6 +125,7 @@ jobs:
             --sast codeql-alerts.json \
             --sca sca-findings.json \
             --secrets gitleaks-results.sarif \
+            --threat-model risks.json \
             --context risk-engine/config/application.yml \
             --policy risk-engine/config/risk-policy.yml \
             --exceptions risk-engine/config/exceptions.yml \
@@ -126,6 +135,7 @@ jobs:
             --sast codeql-alerts.json \
             --sca sca-findings.json \
             --secrets gitleaks-results.sarif \
+            --threat-model risks.json \
             --context risk-engine/config/application.yml \
             --policy risk-engine/config/risk-policy.yml \
             --exceptions risk-engine/config/exceptions.yml \

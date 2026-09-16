@@ -1,4 +1,4 @@
-export type FindingSource = 'SAST' | 'SCA' | 'SECRET';
+export type FindingSource = 'SAST' | 'SCA' | 'SECRET' | 'THREAT_MODEL';
 
 export type ScannerSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN';
 
@@ -53,7 +53,7 @@ export interface Finding {
 
 export class FindingValidationError extends Error {}
 
-const VALID_SOURCES: FindingSource[] = ['SAST', 'SCA', 'SECRET'];
+const VALID_SOURCES: FindingSource[] = ['SAST', 'SCA', 'SECRET', 'THREAT_MODEL'];
 const VALID_SEVERITIES: ScannerSeverity[] = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'UNKNOWN'];
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

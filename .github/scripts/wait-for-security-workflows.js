@@ -6,10 +6,11 @@ const fs = require('fs');
 const GITHUB_API = 'https://api.github.com';
 
 // Must match the `name:` field of each workflow exactly (see workflow_run trigger
-// in risk-assessment.yml). dependency-review.yml only runs on pull_request, so a
-// workflow_run event with no associated open PR (e.g. a push to main) must be
-// treated as a no-op instead of waiting forever for a run that will never happen.
-const REQUIRED_WORKFLOWS = ['CodeQL', 'Secret Scanning', 'Dependency Review'];
+// in risk-assessment.yml). Dependency Review and Threat Model only run on
+// pull_request, so a workflow_run event with no associated open PR (e.g. a push
+// to main) must be treated as a no-op instead of waiting forever for a run that
+// will never happen.
+const REQUIRED_WORKFLOWS = ['CodeQL', 'Secret Scanning', 'Dependency Review', 'Threat Model'];
 
 async function githubRequest(path, token) {
   const res = await fetch(`${GITHUB_API}${path}`, {
@@ -96,6 +97,7 @@ async function main() {
     head_sha: headSha,
     secret_scanning_run_id: runIdFor('Secret Scanning'),
     dependency_review_run_id: runIdFor('Dependency Review'),
+    threat_model_run_id: runIdFor('Threat Model'),
   });
 }
 

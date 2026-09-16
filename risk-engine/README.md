@@ -1,8 +1,8 @@
 # risk-engine
 
 OWASP Risk Rating engine for the `transacciones-api` DevSecOps pipeline. It normalizes
-findings from SAST (CodeQL), SCA (dependency graph), and Secret Scanning (gitleaks),
-enriches them with this application's business context, computes a risk level using
+findings from SAST (CodeQL), SCA (dependency graph), Secret Scanning (gitleaks), and the
+Threat Model (Threagile), enriches them with this application's business context, computes a risk level using
 the OWASP Risk Rating Methodology (Likelihood × Impact), and applies a configurable
 policy to decide **PASS / WARN / BLOCK**.
 
@@ -15,7 +15,7 @@ payments API, and much lower risk in an internal dev tool with no sensitive data
 ## Architecture
 
 ```
-Raw scanner output (CodeQL alerts API / gitleaks SARIF / sca-findings.json)
+Raw scanner output (CodeQL alerts API / gitleaks SARIF / sca-findings.json / threagile risks.json)
         │
         ▼
    parsers/*         -> Finding (scanner-agnostic, validated)
@@ -66,6 +66,7 @@ node dist/cli.js analyze \
   --sast codeql-alerts.json \
   --sca sca-findings.json \
   --secrets gitleaks-results.sarif \
+  --threat-model risks.json \
   --context config/application.yml \
   --policy config/risk-policy.yml \
   --format markdown
@@ -88,10 +89,12 @@ yarn test
 
 Covers: Likelihood/Impact LOW/MEDIUM/HIGH classification, all 9 OWASP matrix
 combinations, policy actions and exceptions (valid/expired), 5 application archetypes
-(public/internal/payment/admin/dev-tool), the 3 parsers (including a negative test that
-a raw secret value never appears in engine output), input validation (malformed YAML,
-malformed findings, path traversal), and an integration test that replays the
-intentional findings from commit `1458890` end-to-end and asserts the PR is BLOCKED.
+(public/internal/payment/admin/dev-tool), the 4 parsers (including a negative test that
+a raw secret value never appears in engine output, and that Threagile risks already
+resolved via `risk_tracking` -- `mitigated`/`accepted`/`false-positive` -- are filtered
+out before reaching the engine), input validation (malformed YAML, malformed findings,
+path traversal), and an integration test that replays the intentional findings from
+commit `1458890` end-to-end and asserts the PR is BLOCKED.
 
 ## GitHub Actions integration
 

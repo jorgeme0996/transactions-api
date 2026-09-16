@@ -12,6 +12,7 @@ import { evaluateAll } from './policy/evaluate';
 import { parseCodeqlAlerts } from './parsers/sast/codeqlAlertsParser';
 import { parseGitleaksSarif } from './parsers/secrets/gitleaksSarifParser';
 import { parseScaFindings } from './parsers/sca/scaJsonParser';
+import { parseThreagileRisks } from './parsers/threat-model/threagileRisksParser';
 import { renderPrComment } from './output/markdown';
 import { renderJson } from './output/json';
 import { renderAnalyzeSummary, renderExplain } from './output/cliTable';
@@ -28,6 +29,7 @@ interface SharedOptions {
   sast?: string;
   sca?: string;
   secrets?: string;
+  threatModel?: string;
   context: string;
   policy: string;
   exceptions?: string;
@@ -55,9 +57,20 @@ function collectFindings(options: SharedOptions, repository: string): Finding[] 
     const raw = readJson(options.secrets);
     findings.push(...parseGitleaksSarif(raw, repository));
   }
+  if (options.threatModel) {
+    const raw = readJson(options.threatModel);
+    findings.push(...parseThreagileRisks(Array.isArray(raw) ? raw : [], repository));
+  }
 
-  if (findings.length === 0 && !options.findings && !options.sast && !options.sca && !options.secrets) {
-    throw new Error('Provide at least one of --findings, --sast, --sca, --secrets');
+  if (
+    findings.length === 0 &&
+    !options.findings &&
+    !options.sast &&
+    !options.sca &&
+    !options.secrets &&
+    !options.threatModel
+  ) {
+    throw new Error('Provide at least one of --findings, --sast, --sca, --secrets, --threat-model');
   }
 
   return findings;
@@ -95,6 +108,7 @@ program
   .option('--sast <path>', 'GitHub Code Scanning alerts JSON (CodeQL)')
   .option('--sca <path>', 'sca-findings.json produced by sca-epss-report.js')
   .option('--secrets <path>', 'gitleaks SARIF report')
+  .option('--threat-model <path>', 'risks.json produced by threagile')
   .requiredOption('--context <path>', 'application.yml')
   .requiredOption('--policy <path>', 'risk-policy.yml')
   .option('--exceptions <path>', 'exceptions.yml')
@@ -129,6 +143,7 @@ program
   .option('--sast <path>', 'GitHub Code Scanning alerts JSON (CodeQL)')
   .option('--sca <path>', 'sca-findings.json produced by sca-epss-report.js')
   .option('--secrets <path>', 'gitleaks SARIF report')
+  .option('--threat-model <path>', 'risks.json produced by threagile')
   .requiredOption('--context <path>', 'application.yml')
   .requiredOption('--policy <path>', 'risk-policy.yml')
   .option('--exceptions <path>', 'exceptions.yml')

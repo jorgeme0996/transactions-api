@@ -7,7 +7,20 @@
 #
 # All factors are 0-9 per the OWASP Risk Rating Methodology.
 
-impact_mode: max # max | average -- see Impact.ts for rationale
+impact_mode: average # max | average -- see Impact.ts for rationale
+# Was `max` originally: "a finding with low technical impact but high business
+# impact must not be underrated." The unintended side effect, confirmed while
+# wiring in the Threat Model source: transacciones-api's business impact factors
+# (financial/privacy/compliance/reputation) are constant and already >=6 (HIGH)
+# for this app regardless of the finding, so `max` made EVERY finding of ANY
+# severity -- even a deliberately LOW one (tests/fixtures/low-risk-finding.json)
+# -- resolve to CRITICAL, collapsing the whole point of having severity tiers.
+# `average` still lets a high-business-impact finding pull a low-technical one up
+# (see impact.spec.ts's "mode average blends..." case), it just no longer lets
+# business impact alone override technical severity outright. MEDIUM+ technical
+# severity still tends to reach CRITICAL for this app's context -- that remains
+# intentional (transacciones-api is production, internet-exposed, PCI, PII,
+# financial); only the LOW-severity/noise findings stop being force-escalated.
 
 cwe_rules:
   CWE-89:
@@ -61,6 +74,7 @@ threat_agent:
     SAST: 6
     SCA: 5
     SECRET: 2 # using a leaked credential requires little skill
+    THREAT_MODEL: 6 # architecture-level gap (e.g. missing auth/encryption); same skill band as SAST
   motive:
     sensitive_data: 9
     no_sensitive_data: 4

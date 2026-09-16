@@ -71,14 +71,54 @@ describe('TransactionService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw BadRequestException for a DEBIT below the minimum amount', async () => {
+    it('should throw BadRequestException when a DEBIT exceeds 10000', async () => {
+      await expect(
+        service.transaction({
+          ...baseRequest,
+          type: TransactionType.DEBIT,
+          amount: 10001,
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should allow a DEBIT of exactly 10000', async () => {
+      providerService.providerExecute.mockResolvedValue({
+        status: StatusType.APPROVED,
+        transactionId: 'prov-1',
+        balance: 900,
+        executedAt: new Date(),
+      });
+      transactionRepository.create.mockReturnValue({
+        save: jest.fn().mockResolvedValue({ uuid: 'tx-1' }),
+      });
+
+      await expect(
+        service.transaction({
+          ...baseRequest,
+          type: TransactionType.DEBIT,
+          amount: 10000,
+        }),
+      ).resolves.toBeDefined();
+    });
+
+    it('should allow a DEBIT below 10000', async () => {
+      providerService.providerExecute.mockResolvedValue({
+        status: StatusType.APPROVED,
+        transactionId: 'prov-1',
+        balance: 900,
+        executedAt: new Date(),
+      });
+      transactionRepository.create.mockReturnValue({
+        save: jest.fn().mockResolvedValue({ uuid: 'tx-1' }),
+      });
+
       await expect(
         service.transaction({
           ...baseRequest,
           type: TransactionType.DEBIT,
           amount: 5000,
         }),
-      ).rejects.toThrow(BadRequestException);
+      ).resolves.toBeDefined();
     });
 
     it('should create and save a transaction when the provider approves it', async () => {

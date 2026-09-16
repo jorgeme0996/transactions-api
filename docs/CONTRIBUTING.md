@@ -42,8 +42,11 @@ Reglas de código limpio y seguro para este proyecto, derivadas del [threat mode
 
 ## 8. Threat model
 
-- Todo cambio de arquitectura (nuevo endpoint, nueva integración externa, nuevo flujo de datos) debe reflejarse en `docs/threat-model/threagile.yml` **antes** de mergear. Usar el skill `update-threat-model` para esto.
-- Los riesgos marcados como falso positivo o aceptados deben llevar justificación escrita en el yml, no solo un cambio de `risk_status` sin explicación.
+Guía completa (paso a paso + formato de triage): [docs/threat-model/README.md](docs/threat-model/README.md).
+
+- Todo cambio de arquitectura (nuevo endpoint, nueva integración externa, nuevo tipo de dato, nuevo flujo que cruza una frontera de confianza) debe reflejarse en `docs/threat-model/threagile.yml` **en el mismo PR**, no después. Usar el skill `update-threat-model` para proponer el diff del modelo.
+- El threat model ya no es solo documentación: `threat-model.yml` corre en cada PR y sus riesgos no resueltos (`unchecked`/`in-discussion`/`in-progress`) entran al `Security Risk Gate` igual que CodeQL/SCA/gitleaks — un riesgo `medium`+ sin triagear puede bloquear el merge (ver [docs/infra/Readme.md](docs/infra/Readme.md)).
+- Los riesgos marcados `mitigated`/`accepted`/`false-positive` van en el bloque `risk_tracking:` de `threagile.yml`, con `justification`, `checked_by` y `date` — nunca un cambio de status sin esos campos (mismo principio que `risk-engine/config/exceptions.yml`: no hay aceptación de riesgo sin una persona identificada detrás).
 
 ## Stack y flujo general
 
