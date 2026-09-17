@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/jorgeme0996/transacciones-api.git
+    repoURL: https://github.com/jorgeme0996/transactions-api.git
     targetRevision: main
     path: k8s
   destination:
