@@ -12,4 +12,4 @@ resources:
   - migration-job.yml
 images:
   - name: 388839923332.dkr.ecr.us-east-1.amazonaws.com/transacciones-api
-    newTag: b8739789110220400bb6884274a1dfffd98471e0 # el CI lo irá reemplazando por el <sha>
+    newTag: 24e7d3c409be61a7461ac568ac8a30c83adcaafa # el CI lo irá reemplazando por el <sha>
