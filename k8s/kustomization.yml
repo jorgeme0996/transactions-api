@@ -12,4 +12,4 @@ resources:
   - migration-job.yml
 images:
   - name: 388839923332.dkr.ecr.us-east-1.amazonaws.com/transacciones-api
-    newTag: 04a0a4289e68dd44e7a52fbfaada558d27bfbd16
+    newTag: 0aa9d2306c89af0f47ea2f400e2a4aa27a46edf2
