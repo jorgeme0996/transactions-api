@@ -45,6 +45,12 @@ Reglas de código limpio y seguro para este proyecto, derivadas del [threat mode
 - Todo cambio de arquitectura (nuevo endpoint, nueva integración externa, nuevo flujo de datos) debe reflejarse en `docs/threat-model/threagile.yml` **antes** de mergear. Usar el skill `update-threat-model` para esto.
 - Los riesgos marcados como falso positivo o aceptados deben llevar justificación escrita en el yml, no solo un cambio de `risk_status` sin explicación.
 
+## 9. Autenticación y autorización de endpoints
+
+- `ApiKeyGuard` se aplica globalmente vía `APP_GUARD`. Cualquier ruta nueva debe pasar por este guard; marcarla `@Public()` requiere justificación explícita en el PR (hoy solo `GET /` y `/healthcheck` son públicas, ver `api-consumer` → `transacciones-api` en el threat model).
+- El modelo de autorización actual es `authorization: none`: el `API_KEY` es compartido y `GET /transactions` no filtra por `accountId` ni pagina resultados, por lo que cualquier tenedor del `API_KEY` puede leer transacciones de todas las cuentas. No asumir aislamiento por cuenta/tenant en código nuevo.
+- Si se introduce autorización por cuenta/tenant o identidad de usuario final (cerrando el riesgo `missing-identity-propagation`), actualizar `docs/threat-model/threagile.yml` (campo `authorization` y la comunicación `to-transacciones-api`) además de este documento.
+
 ## Stack y flujo general
 
 - NestJS + TypeScript, `yarn` como package manager.
