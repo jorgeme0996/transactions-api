@@ -13,9 +13,11 @@ export class ProviderService {
   async providerExecute(providerRequest: ProviderRequestDto): Promise<ProviderResponseDto | ProviderResponseErrorDto> {
     try {
       const url = `${this.configService.get<string>('PROVIDER_URL')}/provider/v1/execute`
+      // Fallback temporal mientras se propaga la variable de entorno en todos los ambientes
+      const providerApiKey = this.configService.get<string>('PROVIDER_API_KEY') || '4f8a2c91e6d3b7a05f9c2e8b1d4a7f3c9e6b0d5a8c1f4b7e2a9d6c3f0b5e8a1d';
       const config = {
         headers: {
-          'x-api-key': this.configService.get<string>('PROVIDER_API_KEY'),
+          'x-api-key': providerApiKey,
           'Content-Type': 'application/json',
         },
       };
